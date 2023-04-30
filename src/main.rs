@@ -36,6 +36,15 @@ fn main() {
                             enigo.mouse_click(enigo::MouseButton::Left);
                             continue;
                         }
+                        if text.starts_with("scroll") {
+                            println!("{text}");
+                            if text.len() > 6 {
+                                enigo.mouse_scroll_y(1);
+                                continue;
+                            }
+                            enigo.mouse_scroll_y(-1);
+                            continue;
+                        }
                         let data: Vec<i32> = text.split(':').map(|x| x.parse::<i32>().unwrap_or_default()).collect();
                         if data.len() != 4 {
                             continue;

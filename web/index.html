@@ -27,7 +27,6 @@ body {
     let init_y = -1;
     let init_pos = false;
     document.addEventListener("drag", (event) => {
-        socket.send("3:5:3:5")
     });
     socket.onmessage = function (event) {
         console.log(event.data)
@@ -191,6 +190,7 @@ body {
                 init_pos = false;
             }
         }, 100);
+        let box_active = false;
         window.onload = function() {
           // find the element that you want to drag.
 
@@ -199,6 +199,7 @@ body {
           of touch and assign it to box */
 
           box.addEventListener('touchmove', function(e) {
+             box_active = true;
             // grab the location of touch
             var touchLocation = e.targetTouches[0];
 
@@ -217,8 +218,23 @@ body {
             var x = parseInt(box.style.left);
             var y = parseInt(box.style.top);
             socket.send(x + ":" + window.innerWidth + ":" + y + ":" + window.innerHeight)
+             box_active = false;
           })
 
         }
+        let prev = -100000;
+        document.addEventListener('touchmove', function(e) {
+            var touchLocation = e.targetTouches[0];
+            let direction = touchLocation.pageY < prev;
+            if (prev == -100000) {
+                prev = touchLocation.pageY;
+            } else {
+                prev = touchLocation.pageY;
+            }
+            // pos is up
+            if (!box_active) {
+                socket.send("scroll" + (direction ? "x" : ""))
+            }
+        })
     }
 </script>
