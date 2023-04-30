@@ -1,0 +1,224 @@
+<style>
+.container {
+    width: 80vw;
+    height: 80vh;
+    margin: 10vw;
+}
+* {
+    touch-action: none
+}
+body {
+    overflow: hidden;
+}
+#box {
+  position: absolute;
+  width: 15vw;
+  height: 15vw;
+  background-color: black;
+}
+</style>
+<body>
+<div id="root" class="container">
+</div>
+</body>
+<script type="text/javascript">
+    var socket = new WebSocket("ws://192.168.1.139:2794", "rust-websocket");
+    let init_x = -1;
+    let init_y = -1;
+    let init_pos = false;
+    document.addEventListener("drag", (event) => {
+        socket.send("3:5:3:5")
+    });
+    socket.onmessage = function (event) {
+        console.log(event.data)
+        if (!init_pos) {
+            let data = event.data.split(";").map(c => c.split(":")).flat().map(x => parseInt(x));
+            init_x = (data[2] / data[0]) * parseInt(window.innerWidth);
+            init_y = (data[3] / data[1]) * parseInt(window.innerHeight);
+            init_pos = true;
+        }
+    };
+    document.addEventListener("click", function() {
+        socket.send("click");
+    }, false);
+    const isMobile = /Android|iPhone/i.test(navigator.userAgent);
+    window.addEventListener
+    if (false) {
+        let c = document.createElement("CANVAS");
+        document.getElementById("root").appendChild(c)
+        //track mouse position on mousemove
+        var mousePosition;
+        //track state of mousedown and up
+        var isMouseDown;
+
+        //reference to the canvas element
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+        //reference to 2d context
+        var ctx = c.getContext("2d");
+
+        //add listeners
+        document.addEventListener('mousemove', move, false);
+        document.addEventListener('mousedown', setDraggable, false);
+        document.addEventListener('mouseup', setDraggable, false);
+
+        //make some circles
+        var c1 = new Circle(20, 20, 50, "red", "black");
+        //initialise our circles
+        var circles = [c1];
+
+        //main draw method
+        function draw() {
+          //clear canvas
+          ctx.clearRect(0, 0, c.width, c.height);
+          drawCircles();
+        }
+
+        //draw circles
+        function drawCircles() {
+          for (var i = circles.length - 1; i >= 0; i--) {
+            circles[i].draw();
+          }
+        }
+
+        //key track of circle focus and focused index
+        var focused = {
+          key: 0,
+          state: false
+        }
+
+        //circle Object
+        function Circle(x, y, r, fill, stroke) {
+          this.startingAngle = 0;
+          this.endAngle = 2 * Math.PI;
+          this.x = x;
+          this.y = y;
+          this.r = r;
+
+          this.fill = fill;
+          this.stroke = stroke;
+
+          this.draw = function() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, this.startingAngle, this.endAngle);
+            ctx.fillStyle = this.fill;
+            ctx.lineWidth = 3;
+            ctx.fill();
+            ctx.strokeStyle = this.stroke;
+            ctx.stroke();
+          }
+        }
+
+        function move(e) {
+          if (!isMouseDown) {
+            return;
+          }
+          getMousePosition(e);
+          //if any circle is focused
+          if (focused.state) {
+            circles[focused.key].x = mousePosition.x;
+            circles[focused.key].y = mousePosition.y;
+            let pos = circles[focused.key];
+            socket.send(pos.x + ":" + window.innerWidth + ":" + pos.y + ":" + window.innerHeight);
+            draw();
+            return;
+          }
+          //no circle currently focused check if circle is hovered
+          for (var i = 0; i < circles.length; i++) {
+            if (intersects(circles[i])) {
+              circles.move(i, 0);
+              focused.state = true;
+              break;
+            }
+          }
+          draw();
+        }
+
+        //set mousedown state
+        function setDraggable(e) {
+          var t = e.type;
+          if (t === "mousedown") {
+            isMouseDown = true;
+          } else if (t === "mouseup") {
+            isMouseDown = false;
+            releaseFocus();
+          }
+        }
+
+        function releaseFocus() {
+          focused.state = false;
+        }
+
+        function getMousePosition(e) {
+          var rect = c.getBoundingClientRect();
+          mousePosition = {
+            x: Math.round(e.x - rect.left),
+            y: Math.round(e.y - rect.top)
+          }
+        }
+
+        //detects whether the mouse cursor is between x and y relative to the radius specified
+        function intersects(circle) {
+          // subtract the x, y coordinates from the mouse position to get coordinates
+          // for the hotspot location and check against the area of the radius
+          var areaX = mousePosition.x - circle.x;
+          var areaY = mousePosition.y - circle.y;
+          //return true if x^2 + y^2 <= radius squared.
+          return areaX * areaX + areaY * areaY <= circle.r * circle.r;
+        }
+
+        Array.prototype.move = function(old_index, new_index) {
+          if (new_index >= this.length) {
+            var k = new_index - this.length;
+            while ((k--) + 1) {
+              this.push(undefined);
+            }
+          }
+          this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+        };
+        draw();
+
+    } else {
+        let b = document.createElement("box");
+        document.getElementById("root").appendChild(b)
+        b.id = "box";
+        let start = setTimeout(() => {
+            if (init_pos) {
+                box.style.left = Math.round(init_x) + 'px';
+                box.style.top = Math.round(init_y) + 'px';
+                console.log(init_x);
+                clearTimeout(start);
+                init_pos = false;
+            }
+        }, 100);
+        window.onload = function() {
+          // find the element that you want to drag.
+
+          /* listen to the touchMove event,
+          every time it fires, grab the location
+          of touch and assign it to box */
+
+          box.addEventListener('touchmove', function(e) {
+            // grab the location of touch
+            var touchLocation = e.targetTouches[0];
+
+            // assign box new coordinates based on the touch.
+            box.style.left = touchLocation.pageX + 'px';
+            box.style.top = touchLocation.pageY + 'px';
+            socket.send(Math.round(touchLocation.pageX) + ":" + window.innerWidth + ":" + Math.round(touchLocation.pageY) + ":" + window.innerHeight);
+          })
+
+          /* record the position of the touch
+          when released using touchend event.
+          This will be the drop position. */
+
+          box.addEventListener('touchend', function(e) {
+            // current box position.
+            var x = parseInt(box.style.left);
+            var y = parseInt(box.style.top);
+            socket.send(x + ":" + window.innerWidth + ":" + y + ":" + window.innerHeight)
+          })
+
+        }
+    }
+</script>
